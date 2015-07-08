@@ -7,11 +7,11 @@ RUN \
   mkdir /app
 
 RUN \
-  echo '#!/bin/sh' >> start && \
-  echo 'cd /app' >> start && \
-  echo 'npm install' >> start && \
-  echo 'pm2 start -i max bin/www' >> start && \
-  chmod +x start
+  echo "#!/bin/sh" > start.sh && \
+  echo "cd /app" > start.sh && \
+  echo "npm install" > start.sh && \
+  echo "pm2 start -i max bin/www" > start.up && \
+  chmod +x start.sh
 
 WORKDIR /
 
@@ -22,6 +22,6 @@ EXPOSE 8080
 ENV NODE_ENV production
 ENV PORT 8080
 
-CMD ["./start"]
+CMD ["./start.sh"]
 
 
