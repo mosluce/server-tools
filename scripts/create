@@ -1,0 +1,28 @@
+ #!/bin/sh
+
+APP_NAME=$1
+APP_PORT=$2
+
+HOME=/home/mosluce
+APPS_DIR=$HOME/apps
+REPOS_DIR=$HOME/repos
+
+APP_DIR=$APPS_DIR/$APP_NAME
+REPO_DIR=$REPOS_DIR/$APP_NAME.git
+TPL_DIR=$HOME/scripts/tpl/git
+
+mkdir -p $APP_DIR
+mkdir -p $REPO_DIR
+
+cd $REPO_DIR
+
+git init --bare
+git --bare update-server-info
+git config receive.denycurrentbranch ignore
+
+sed -i "s/bare = true/bare = false/g" config
+sed -e s/APP_NAME/$APP_NAME/g $TPL_DIR/post-receive > hooks/post-receive
+
+chmod +x hooks/post-receive
+
+docker run -itd --name $APP_NAME -p 172.17.42.1:$APP_PORT:8080 -v $APP_DIR:/app --link mongodb:db --restart always mosluce/node-pm2

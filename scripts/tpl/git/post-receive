@@ -1,0 +1,8 @@
+#!/bin/sh
+
+APP_DIR=/home/mosluce/apps/APP_NAME
+REPO_DIR=/home/mosluce/repos/APP_NAME.git
+
+git --work-tree=$APP_DIR --git-dir=$REPO_DIR checkout -f
+
+docker restart APP_NAME
