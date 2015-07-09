@@ -1,7 +1,23 @@
  #!/bin/sh
 
 APP_NAME=$1
-#APP_PORT=$2
+APP_DOMAIN=$2
+APP_PORT=$3
+
+if [ -z "$1" ] ; then
+  echo "name required"
+  exit 1
+fi
+
+if [ -z "$2" ] ; then
+  echo "domain required"
+  exit 1
+fi
+
+if [ -z "$3" ] ; then
+  echo "port required"
+  exit 1
+fi
 
 HOME=/home/mosluce
 APPS_DIR=$HOME/apps
@@ -12,7 +28,9 @@ REPO_DIR=$REPOS_DIR/$APP_NAME.git
 
 SCRIPT=$(readlink -f "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
-TPL_DIR=$SCRIPTPATH/tpl/git
+
+GIT_TPL_DIR=$SCRIPTPATH/tpl/git
+VHOST_TPL_DIR=$SCRIPTPATH/tpl/nginx
 
 mkdir -p $APP_DIR
 mkdir -p $REPO_DIR
@@ -24,8 +42,12 @@ git --bare update-server-info
 git config receive.denycurrentbranch ignore
 
 sed -i "s/bare = true/bare = false/g" config
-sed -e s/APP_NAME/$APP_NAME/g $TPL_DIR/post-receive > hooks/post-receive
+sed -e s/APP_NAME/$APP_NAME/g $GIT_TPL_DIR/post-receive > hooks/post-receive
+
+sed -e s/APP_NAME/$APP_NAME/g -e s/APP_PORT/$APP_PORT/g -e s/APP_DOMAIN/$APP_DOMAIN/g $VHOST_TPL_DIR/vhost.conf > $HOME/server-tools/configs/sites-enabled/$APP_NAME.conf
 
 chmod +x hooks/post-receive
 
-#docker run -itd --name $APP_NAME -p 172.17.42.1:$APP_PORT:8080 -v $APP_DIR:/app --link mongodb:db --restart always mosluce/node-pm2
+docker run -itd --name $APP_NAME -v $APP_DIR:/app --link mongodb:db --restart always -p $APP_PORT:8080 mosluce/node-pm2
+
+docker restart nginx
