@@ -11,6 +11,7 @@ RUN \
   echo 'cd /app' >> start && \
   echo 'npm install' >> start && \
   echo 'pm2 start -i max bin/www' >> start && \
+  echo 'bash' >> start && \
   chmod +x start
 
 WORKDIR /
