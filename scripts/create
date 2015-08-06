@@ -19,7 +19,7 @@ if [ -z "$3" ] ; then
   exit 1
 fi
 
-HOME=/home/mosluce
+#HOME=/home/mosluce
 APPS_DIR=$HOME/apps
 REPOS_DIR=$HOME/repos
 
@@ -31,9 +31,11 @@ SCRIPTPATH=$(dirname "$SCRIPT")
 
 GIT_TPL_DIR=$SCRIPTPATH/tpl/git
 VHOST_TPL_DIR=$SCRIPTPATH/tpl/nginx
+VHOST_CONFIG_DIR=$HOME/configs/sites-enabled
 
 mkdir -p $APP_DIR
 mkdir -p $REPO_DIR
+mkdir -p $VHOST_CONFIG_DIR
 
 cd $REPO_DIR
 
@@ -44,10 +46,10 @@ git config receive.denycurrentbranch ignore
 sed -i "s/bare = true/bare = false/g" config
 sed -e s/APP_NAME/$APP_NAME/g $GIT_TPL_DIR/post-receive > hooks/post-receive
 
-sed -e s/APP_NAME/$APP_NAME/g -e s/APP_PORT/$APP_PORT/g -e s/APP_DOMAIN/$APP_DOMAIN/g $VHOST_TPL_DIR/vhost.conf > $HOME/server-tools/configs/sites-enabled/$APP_NAME.conf
+sed -e s/APP_NAME/$APP_NAME/g -e s/APP_PORT/$APP_PORT/g -e s/APP_DOMAIN/$APP_DOMAIN/g $VHOST_TPL_DIR/vhost.conf > $HOME/configs/sites-enabled/$APP_NAME.conf
 
 chmod +x hooks/post-receive
 
-docker run -itd --name $APP_NAME -v $APP_DIR:/app --link mongodb:db --restart always -p $APP_PORT:8080 mosluce/node-pm2
+docker run -itd --name $APP_NAME -v $APP_DIR:/app --restart always -p $APP_PORT:8080 mosluce/node-pm2
 
 docker restart nginx

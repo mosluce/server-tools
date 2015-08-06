@@ -1,0 +1,8 @@
+#!/bin/sh
+
+APP_DIR=/home/mosluce/apps/klcc-cloud
+REPO_DIR=/home/mosluce/repos/klcc-cloud.git
+
+git --work-tree=$APP_DIR --git-dir=$REPO_DIR checkout -f
+
+docker restart klcc-cloud
